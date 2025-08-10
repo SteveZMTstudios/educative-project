@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
+# 假如说你的编辑器或者node-modules目录中有一些不需要的文件，可以在这里添加
+.trash
+#(这个文件就不会提交到git中)
 # User-specific files
 *.rsuser
 *.suo
