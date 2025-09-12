@@ -15,6 +15,15 @@
 <script>
 export default {
   name: 'Favor',
-  methods:{ select(p){ alert('已选择：' + p) } }
+  methods:{ 
+    select(p){ 
+      // persist preference tags to localStorage for client-side recommender
+      const key = 'edu_user_prefer_tags'
+      let arr = JSON.parse(localStorage.getItem(key) || '[]')
+      if(!arr.includes(p)) arr.push(p)
+      localStorage.setItem(key, JSON.stringify(arr))
+      alert('已选择：' + p)
+    } 
+  }
 }
 </script>

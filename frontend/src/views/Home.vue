@@ -27,6 +27,13 @@
         </FeatureCard>
       </div>
     </div>
+    <div class="mdui-m-t-3">
+      <FeatureCard title="课程中心" subtitle="浏览与添加课程，按标签筛选推荐" img="https://picsum.photos/seed/courses/800/300">
+        <template #actions>
+          <router-link to="/courses" class="mdui-btn mdui-ripple">进入课程中心</router-link>
+        </template>
+      </FeatureCard>
+    </div>
   </div>
 </template>
 

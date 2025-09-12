@@ -26,10 +26,27 @@ export default {
   methods:{
     loadRecommendations(){
       this.loading = true
+      // try backend recommend first, fallback to client-side tag matcher
       fetch('/api/recommend', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('edu_token')||'') } })
-        .then(r=>r.json()).then(d=>{ this.recommendations = d.recommendations || [] })
-        .catch(()=>{ this.recommendations = [] })
+        .then(r=>{
+          if(!r.ok) throw new Error('backend fail')
+          return r.json()
+        }).then(d=>{ this.recommendations = d.recommendations || [] })
+        .catch(()=>{ this.recommendations = this.clientRecommend() })
         .finally(()=>{ this.loading = false })
+    }
+    ,
+    clientRecommend(){
+      // load user tags and courses, score courses by tag intersection
+      const tags = JSON.parse(localStorage.getItem('edu_user_prefer_tags')||'[]')
+      const courses = JSON.parse(localStorage.getItem('edu_courses')||'[]')
+      if(courses.length===0) return []
+      if(!tags || tags.length===0) return courses.slice(0,5)
+      const scored = courses.map(c=>{
+        const score = c.tags.reduce((s,t)=> s + (tags.includes(t)?1:0), 0)
+        return Object.assign({score}, c)
+      }).filter(c=>c.score>0).sort((a,b)=>b.score-a.score)
+      return scored.slice(0,10)
     }
   }
 }

@@ -67,11 +67,4 @@ Invoke-RestMethod http://localhost:5173/api/recommend | ConvertTo-Json -Depth 5
 4. 作业/批改：实现教师发布、学生提交、自动/手动批改与成绩排名推送。
 5. 测试与 CI：添加 Vitest/Playwright 测试与 GitHub Actions 自动化构建。
 
-## 我可以帮你做（可直接执行）
-- 终止占用 3000 端口的进程并重启后端。  
-- 在本地通过 Vite proxy 做端到端验证。  
-- 为前端添加更多组件与样式。  
-
-如果你需要我现在代为执行其中一项，请回复对应操作，例如："结束占用端口并重启后端" 或 "验证 proxy"。
-
 
