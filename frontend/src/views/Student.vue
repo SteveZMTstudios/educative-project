@@ -27,7 +27,11 @@ export default {
     loadRecommendations(){
       this.loading = true
       // try backend recommend first, fallback to client-side tag matcher
-      fetch('/api/recommend', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('edu_token')||'') } })
+      import('../../src/utils/safeJson').then(mod=>{
+        fetch('/api/recommend', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('edu_token')||'') } })
+          .then(async r=>{ const d = await mod.safeJson(r); if (!r.ok) throw new Error(d.error||'获取推荐失败'); /* handle d */ })
+          .catch(()=>{})
+      })
         .then(r=>{
           if(!r.ok) throw new Error('backend fail')
           return r.json()
