@@ -1,70 +1,78 @@
-# EDUCATIVE-PROJECT
-这是一个“智能技术赋能个性化学习”交互式课件平台骨架，包含前端（Vue + Vite）、后端（Node/Express）与一个 Python 推荐服务占位（Flask）。
+# Educative Project 平台骨架
 
-## 本仓库结构（简要）
-- `frontend/` - Vite + Vue3 前端应用（开发服务器: 5173）
-- `backend/` - Node.js (Express) 后端 API（运行端口: 3000）
-- `python_service/` - Flask 推荐服务占位（运行端口: 5001）
+该仓库提供一个初始的全栈（Vue3 + FastAPI）可扩展教学 / 练习 / 匹配服务框架。
 
-## 本地部署（PowerShell）
+## 技术栈选择说明
+- 前端: Vue 3 + Vite + TypeScript
+  - 轻量快速，生态成熟，适合中台与交互式练习界面
+- 后端: FastAPI (Python)
+  - 高性能、类型友好、内建交互式文档 (Swagger / ReDoc)
+  - 便于快速迭代与后续扩展（账号、练习、匹配、推荐）
+- 包管理: 前端 npm, 后端 Poetry
+- 接口风格: REST (可视需要后续补充 WebSocket 用于实时协作 / 匹配状态推送)
 
-1) 启动后端（Express）
-
-```powershell
-cd e:\Project\educative-project\backend
-npm install
-# 直接运行
-node index.js
-# 或者开发模式（nodemon）
-npm run dev
+## 项目结构
+```
+backend/        # FastAPI 应用
+frontend/       # Vue3 前端 (Vite)
+docs/           # 规划与技术文档
 ```
 
-2) 启动 Python 推荐服务（可选，用于后端代理）
-
-```powershell
-cd e:\Project\educative-project\python_service
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-python app.py
+## 快速开始
+### 启动后端
 ```
+cd backend
+poetry install
+poetry run uvicorn app.main:app --reload --port 8000
+```
+访问: http://127.0.0.1:8000/docs (Swagger UI)
 
-3) 启动前端（Vite）
-
-```powershell
-cd e:\Project\educative-project\frontend
+### 启动前端
+```
+cd frontend
 npm install
 npm run dev
-# 在浏览器打开 http://localhost:5173/
+```
+访问: http://127.0.0.1:5173
+
+前端通过代理访问后端 /api/*。
+
+## 下一步推荐迭代路线
+1. 账号与身份
+   - 路由: /api/auth/login /register /me
+   - JWT + Refresh 或 Session + Redis
+2. 练习题与内容
+   - 题目模型: id, title, type(shell/sql/code), difficulty, tags, content, solution
+   - CRUD + 列表分页 + 搜索过滤
+3. 用户偏好与匹配 (best_match 文档落地)
+   - 匹配算法模块 (可抽象 service/matcher.py)
+   - 定时或事件驱动计算
+4. 运行/判题执行沙箱 (针对 shell / 代码题)
+   - 独立微服务或本地受限容器 (后期)
+5. Observability & Infra
+   - 日志结构化 loguru
+   - 健康检查 /metrics (Prometheus) + tracing (OpenTelemetry)
+6. 测试 & CI
+   - GitHub Actions: 后端 pytest + ruff
+   - 前端 eslint + type-check + vitest (后加)
+
+## 环境变量
+在 backend/ 下创建 .env:
+```
+ENVIRONMENT=dev
+# DATABASE_URL=postgresql+psycopg://user:pass@localhost:5432/educative
 ```
 
-注意：启动 `npm run dev` 时必须在 `frontend` 子目录执行，否则会出现 `ENOENT: no such file or directory, open '...\package.json'` 错误。
+## 代码风格
+- 后端: Ruff + Black
+- 前端: ESLint + TypeScript 严格模式
 
-## Vite Proxy（开发模式）
-前端开发配置中已包含代理（`frontend/vite.config.mjs`），把 `/api` 转发到 `http://localhost:3000`，开发时可直接从前端调用 `/api/*` 而无需处理 CORS。
+## 安全预留
+- CORS 策略 (FastAPI 中间件)
+- 速率限制 (待加入: slowapi 或自建中间件)
+- 输入校验：Pydantic 模型
 
-验证代理：
+## 贡献流程
+- feature/ 分支开发 -> PR -> 代码评审 -> 合并 main
 
-```powershell
-# 如果 Vite 已启动
-Invoke-RestMethod http://localhost:5173/api/recommend | ConvertTo-Json -Depth 5
-```
-
-如果返回后端推荐数据则代理配置生效。
-
-## 常见故障与排查
-- 错误: "Install @vitejs/plugin-vue" 或 ESM 相关错误：
-	- 解决：确保 `@vitejs/plugin-vue` 安装在 `frontend/node_modules` 中，并使用 `vite.config.mjs`（ESM），`frontend/package.json` 必须包含 `"type":"module"`，删除残留的 `vite.config.js`。
-- 错误: `EADDRINUSE: address already in use :::3000`：
-	- 说明：端口 3000 被占用。执行 `Get-NetTCPConnection -LocalPort 3000` 或 `netstat -ano | Select-String 3000` 查找 PID，并用 `Stop-Process -Id <PID>` 终止进程。
-- 错误: `ENOENT: no such file or directory, open '...\package.json'`：
-	- 说明：当前工作目录错误。请在包含 `package.json` 的目录执行 npm 脚本。
-
-## 完善计划（短期优先级）
-1. 完善前端页面：把所有占位内容迁移为 Vue 组件，支持移动端适配与无障碍（已开始）。
-2. 身份认证：实现真实注册/登录（JWT）与 role 区分（学生/教师）。
-3. 推荐引擎：把后端 `/api/recommend` 与 `python_service` 对接，支持基于学习偏好的推荐。
-4. 作业/批改：实现教师发布、学生提交、自动/手动批改与成绩排名推送。
-5. 测试与 CI：添加 Vitest/Playwright 测试与 GitHub Actions 自动化构建。
-
-
+欢迎继续补充 docs/ 中的业务与技术细节，将文档与实现保持同步。

@@ -1,20 +1,30 @@
-# frontend
+# Frontend (Vue 3 + Vite)
 
-本目录为项目前端（Vite + Vue3）。
+## 开发启动
+```
+npm install
+npm run dev
+```
+默认端口: 5173
 
-新增功能（客户端实现）：
+## 代理说明
+开发环境通过 Vite 代理将 /api/* 转发到 FastAPI (http://127.0.0.1:8000)。
 
-- 课程中心（`/courses`）：浏览、按标签筛选、教师添加课程并保存在 localStorage（键：`edu_courses`）。
-- 偏好选择（`/favor`）：选择兴趣标签会保存到 localStorage（键：`edu_user_prefer_tags`）。
-- 学生侧推荐：点击“加载推荐”时优先请求后端 `/api/recommend`，若后端不可用则使用客户端基于标签的简单推荐（按标签交集计分）。
+## 目录结构
+```
+frontend/
+  package.json
+  vite.config.ts
+  index.html
+  tsconfig.json
+  src/
+    main.ts
+    App.vue
+```
 
-快速试用：
-
-1. 在浏览器打开前端开发服务器（参见主仓库 README）。
-2. 访问 `#/courses` 浏览或添加课程；添加后其他页面会读取它们。
-3. 访问 `#/favor` 选择兴趣标签（例如 `python`），然后到 `#/student` 点击“加载推荐”查看基于标签的推荐。
-
-说明：客户端推荐为占位实现，后端可实现更复杂的召回/排序并返回 `recommendations` 数组。
-
-示例课程文档：
-- 教师示例课程放在 `docs/course-examples/linux-shell-basic.md`，这是一个 "Linux Shell 基础" 的完整示例，包含章节、练习与脚本示例，可用于参考或直接导入课程中心。
+后续计划：
+- 路由管理 (Vue Router)
+- 状态管理 (Pinia)
+- 统一 UI 组件库 (Element Plus / Naive UI 选择其一)
+- API 封装与错误处理
+- 鉴权（基于 JWT / Session）

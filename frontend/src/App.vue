@@ -1,25 +1,13 @@
 <template>
-  <div>
-    <header class="mdui-appbar mdui-appbar-fixed">
-      <div class="mdui-toolbar mdui-color-theme">
-        <a class="mdui-typo-title" href="#/">智能个性化学习平台</a>
-        <div class="mdui-toolbar-spacer"></div>
-        <router-link to="/login" class="mdui-btn mdui-btn-icon"><i class="mdui-icon material-icons">login</i></router-link>
-      </div>
-    </header>
-    <main class="mdui-container mdui-m-t-6">
-      <router-view />
-    </main>
-  </div>
+  <AppLayout />
 </template>
 
-<script>
-export default {
-  name: 'App'
-}
+<script setup lang="ts">
+import AppLayout from './components/AppLayout.vue';
 </script>
 
-<style>
-body { padding-top: 56px; }
-.mdui-container { max-width: 960px; margin: 0 auto; }
+<style scoped>
+/* Global base styles overrides if needed */
+html.dark { background:#0f1115; color:#e5e7eb; }
+html, body { transition: background-color .35s ease, color .35s ease; }
 </style>

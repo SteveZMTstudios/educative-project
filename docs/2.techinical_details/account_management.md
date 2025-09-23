@@ -23,6 +23,31 @@ KYC 功能也因技术原因和监管需求未能实现。
 - 注册时间
 - 上次登录时间
 - 个人资料信息
+- 用户公钥(ed25519)
+- 用户私钥（只有已登录用户可读取，）
+
+## 已实现的后端行为（实现记录）
+
+- 数据库：使用 SQLite（文件 dev.db），表名 users，字段包括 username, email, password, salt, token, interest_tags, registration_time, last_login_time, profile, public_key, private_key。
+- 注册流程：前端在提交表单时需要先对用户明文密码进行 SHA-256，然后把该 hex 字符串发送到后端的 `/api/auth/register`。
+  后端生成随机 salt（32 hex 字节），对接收到的前端 sha256 hex 与 salt 拼接再做一次 sha256，结果作为存储密码写入数据库。
+- 登录流程：前端同样先对明文密码做 SHA-256，再发到 `/api/auth/login`；后端取出该用户的 salt，与前端的 sha256 值做后端 sha256 比对存储值。
+- Token：登录成功后后端生成 UUID token 保存到用户记录中，前端将 token 存储在 `localStorage` 的 `auth_token`，并用于后续接口的鉴权（目前使用查询参数 `?token=...`）。
+- 密钥对：后端在第一次登录时生成 ed25519 密钥对（使用 PyNaCl），并将私钥 hex 存储在 `private_key` 字段；通过 `/api/auth/me?token=...` 可返回 `private_key` 仅供已登录的用户读取（注意：生产环境私钥应该只在用户设备端生成并妥善保管，或使用安全存储服务）。
+
+## 前端行为（实现记录）
+
+- 在注册/登录页面使用 Web Crypto API 做 SHA-256，并发送 hash 到后端（确保网络传输层使用 HTTPS 在生产环境中）。
+- 前端将登录取得的 token 存入 `localStorage.auth_token`，并在 router 的全局守卫中判断是否存在 token 以决定是否自动跳转到 `/home`。
+- 登录/注册界面使用 Naive UI 做了样式优化，主页也使用 Naive UI 展示项目介绍与用户欢迎信息。
+
+## 安全与改进建议
+
+- 当前实现为了演示简单性将私钥以 hex 形式存储在数据库，这在生产中不安全，应改为在客户端生成并仅存储公钥，或使用 HSM/密钥管理服务。
+- 密码存储使用双重 sha256（前端 sha256 + 后端 salt sha256），建议使用更强的 KDF（例如 bcrypt/argon2）替代 sha256，并在后端使用专门的密码哈希库（passlib）。
+- token 现在是 UUID 串，建议改为 JWT 或短期 token + refresh token 的方案，并将 token 存储在更安全的位置（HttpOnly cookie）以防 XSS。
+- 生产环境强制使用 HTTPS；增加速率限制和登录失败锁定以防暴力破解。
+
 
 ## 账号登录
 用户可以通过访问登录页面，输入其用户名和密码来登录系统。登录成功后检查用户的兴趣标签，若为#newuser则转到学习计划选择器，否则转到主页。
